@@ -90,6 +90,7 @@ int Postfix_Evaluation(std::string E) {
             elem1 = s.Top();
             s.Pop();
             elem2 = s.Top();
+            s.Pop();
             result = performOperation(elem2, elem1, E[i]);
             s.Push(result);
         }
@@ -109,6 +110,6 @@ int main() {
 
     std::cout << result << std::endl;
     std::cout << "\n==========================================================" << std::endl;
-}
 
-// 2, 3, *,4,+,#
+    return 0;
+}
