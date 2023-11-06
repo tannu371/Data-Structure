@@ -21,7 +21,8 @@ node** make_graph(int m, int n) {
     int v1, v2;
     char c;
     for(int i=0; i<n; i++){
-        cin >> v1 >> v2 >> c;
+        if(i==n-1) cin >> v1 >> v2;
+        else cin >> v1 >> v2 >> c;
         for(int j=0; j<m; j++) {
             if(A[j]->vertex == v1) {
                 node* newNode = new node;
@@ -31,7 +32,7 @@ node** make_graph(int m, int n) {
                 while(temp->link != NULL) {
                     temp = temp->link;
                 }
-                temp->link = newNode;
+                temp->link = newNode; 
                 break;
             }
         }
@@ -43,7 +44,7 @@ node** make_graph(int m, int n) {
         node* temp = A[i];
         while(temp->link != NULL) {
             temp = temp->link;
-            cout << temp;
+            cout << temp->vertex << " ";
         }
         cout << endl;
     }
