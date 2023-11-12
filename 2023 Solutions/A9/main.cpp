@@ -1,11 +1,10 @@
 #include<iostream>
 #include<string>
 #include<queue>
-#include<sstream>
+
+#define MAX_VERTEX 10
 
 using namespace std;
-
-const int MAX_VERTEX = 7;
 
 struct GraphNode{
 	char c;
@@ -13,54 +12,65 @@ struct GraphNode{
 };
 
 GraphNode** Create_graph() {
-	GraphNode** A;
-	A = new GraphNode* [MAX_VERTEX];
-	cout << "Enter the adjacency list: " << endl;
 	
-	for(int i=0; i<MAX_VERTEX; i++) {
+	cout << "Enter the adjacency list: " << endl;
+
+	string s;
+
+	GraphNode** A;
+	A = new GraphNode*[MAX_VERTEX];
+	
+	getline(cin, s);
+	int i=0;
+	do {
 		GraphNode* newNode = new GraphNode;
-		newNode->c = i+65;
+		newNode->c = s[0];
 		newNode->link = NULL;
 		A[i] = newNode;
-	}
-
-		string s;
-	
-		while(getline(cin, s,'\n')) {
-			int i = int(s[0])-65;
-			for(int j=4; j<s.size(); j+=4) {
-				GraphNode* newnode = new GraphNode;
-				newnode->c = s[j];
-				newnode->link = NULL;
-				GraphNode* temp = A[i];
-				while(temp->link!=NULL) temp = temp->link;
-				temp->link = newnode;
-			}
+		for(int j=3; j<s.size(); j+=3) {
+			GraphNode* newnode = new GraphNode;
+			newnode->c = s[j];
+			newnode->link = NULL;
+			GraphNode* temp = A[i];
+			while(temp->link!=NULL) temp = temp->link;
+			temp->link = newnode;
 		}
-	
+		getline(cin, s);
+		i++;
+	}while(s.length()!=0);
+
+	A[i] = NULL;
+
 	return A;
 }
 
 void find_degree(GraphNode** A) {
+
 	int id[MAX_VERTEX] = {0}; 
 	int od[MAX_VERTEX] = {0};
-	
-	for(int i=0; i<MAX_VERTEX; i++) {
-		GraphNode* temp = A[i];
-		while(temp->link != NULL) {
-			od[i]++;
-			temp = temp->link;
-			char c = temp->c;
-			int n = int(c)-65;
-			id[n]++;
-		}
-	}
 
-	cout <<"\n"<< endl;
+	int max_vertex =0;
 	
-	for(int i=0; i<MAX_VERTEX; i++) {
-		char c = i+65;
-		cout << c << ": " << id[i] << ", " << od[i] << endl;
+	int i=0;
+	do{
+		GraphNode* temp = A[i];
+		char c= temp->c;
+		int n = int(c)-65;
+		if((n+1)>max_vertex) max_vertex=n+1;
+		while(temp->link != NULL) {
+			od[n]++;
+			temp = temp->link;
+			c = temp->c;
+			int m = int(c)-65;
+			if((m+1)>=max_vertex) max_vertex=m+1;
+			id[m]++;
+		}
+		i++;
+	}while(A[i] != NULL);  
+	
+	for(int j=0; j<max_vertex; j++) {
+		char c = j+65;
+		cout << c << ": " << id[j] << ", " << od[j] << endl;
 	}
 	
 	cout << endl;
