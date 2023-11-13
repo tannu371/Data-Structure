@@ -137,11 +137,11 @@ class Queue{
 	}
 };
 
-// bfs traveral using queue.
+//BFS traveral using queue.
 void bfs_traversal(GraphNode** A, char u) {
 	GraphNode* w;
 	int visited[MAX_VERTEX] {0};
-	cout << "The BFS sequence starting fromt vertex " << u << " is: ";
+	cout << "The BFS sequence starting from vertex " << u << " is: ";
 	cout << u;
 	visited[int(u)-65] = 1;
 	Queue q;
@@ -155,23 +155,53 @@ void bfs_traversal(GraphNode** A, char u) {
 				visited[int(w->c)-65] = 1;
 			}
 		}
-		cout << endl;
 	}
+	cout << '\n' << endl;
 }
 
-// 
+//DFS traversal
+void dfs(GraphNode** A, char u, char visited[], int &i, char result[], int &k) {
+	visited[i++] = u;
+	GraphNode* w;
+	for(w=A[int(u)-65]->link; w; w=w->link) {
+		bool flag = false;
+		for(int j=0; j<i; j++) {
+			if(visited[j] == w->c) flag = true;
+		}
+		if(!flag)
+			dfs(A, w->c, visited, i, result, k);
+	}
+	
+	result[k++] = u;
+}
+
+// Topological sort based on dfs
+void Topo_Sort(GraphNode** A, char start) {
+	char visited[MAX_VERTEX];
+	char result[MAX_VERTEX];
+	int v=0;
+	int r=0;
+	
+	dfs(A, start, visited, v, result, r);
+
+	for(int i=r-1; i>=0; i--) {
+		cout << result[i];
+		if(i!=0) cout << "->";
+	}
+	cout << '\n' << endl;
+}
 
 int main() {
 	GraphNode** A = Create_graph();
 
-	std::cout << "\na. ==========================================================" << std::endl;
+	std::cout << "a. ==========================================================\n" << std::endl;
 
 	find_degree(A);
 
 	char path[MAX_VERTEX];
 	for(int i=0; i<MAX_VERTEX; i++) path[i]=' ';
 
-	std::cout << "\nb. ==========================================================" << std::endl;
+	std::cout << "b. ==========================================================\n" << std::endl;
 
 	cout << "Enter the source vertex: ";
 	char u;
@@ -190,13 +220,20 @@ int main() {
 
 	cout << endl;
 
-	std::cout << "\nc. ==========================================================" << std::endl;
+	std::cout << "c. ==========================================================\n" << std::endl;
 
 	cout << "Enter the source vertex: ";
 	char c;
 	cin >> c;
 
 	bfs_traversal(A, c);
+
+	std::cout << "d. ==========================================================\n" << std::endl;
+
+	cout << "Enter the source vertex: ";
+	char s;
+	cin >> s;
+	Topo_Sort(A, s);
 
 	return 0;
 }
