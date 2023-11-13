@@ -34,6 +34,8 @@ int main() {
     cout << "Enter the size of array: ";
     int n;
     cin >> n;
+    
+    cout << "Enter the elements: ";
     int a[n];
     for(int i=0; i<n; i++) cin >> a[i];
 

@@ -1,6 +1,4 @@
 #include<iostream>
-#include<string>
-#include<queue>
 
 #define MAX_VERTEX 10
 
@@ -11,6 +9,7 @@ struct GraphNode{
 	GraphNode* link;
 };
 
+// Create a graph with user given adjacency list.
 GraphNode** Create_graph() {
 	
 	cout << "Enter the adjacency list: " << endl;
@@ -19,32 +18,33 @@ GraphNode** Create_graph() {
 
 	GraphNode** A;
 	A = new GraphNode*[MAX_VERTEX];
-	
-	getline(cin, s);
-	int i=0;
-	do {
+
+	for(int i=0; i<MAX_VERTEX; i++) {
 		GraphNode* newNode = new GraphNode;
-		newNode->c = s[0];
+		newNode->c = i+65;
 		newNode->link = NULL;
 		A[i] = newNode;
+	}
+	
+	getline(cin, s);
+
+	do {
 		for(int j=3; j<s.size(); j+=3) {
 			GraphNode* newnode = new GraphNode;
 			newnode->c = s[j];
 			newnode->link = NULL;
-			GraphNode* temp = A[i];
+			GraphNode* temp = A[s[0]-65];
 			while(temp->link!=NULL) temp = temp->link;
 			temp->link = newnode;
 		}
 		getline(cin, s);
-		i++;
 	}while(s.length()!=0);
-
-	A[i] = NULL;
 
 	return A;
 }
 
-void find_degree(GraphNode** A) {
+// Find in-degree and out-degree and return the number of vertices in adjacency list graph A.
+int find_degree(GraphNode** A) {
 
 	int id[MAX_VERTEX] = {0}; 
 	int od[MAX_VERTEX] = {0};
@@ -66,40 +66,143 @@ void find_degree(GraphNode** A) {
 			id[m]++;
 		}
 		i++;
-	}while(A[i] != NULL);  
+	}while(i<max_vertex);  
 	
-	for(int j=0; j<max_vertex; j++) {
+	int j=0;
+	while(j<max_vertex) {
 		char c = j+65;
 		cout << c << ": " << id[j] << ", " << od[j] << endl;
+		j++;
 	}
 	
 	cout << endl;
+
+	return max_vertex;
 }
 
-// Input
+//Check if path exists and print the path from vertex u to v if it exists in  a adjacency list graph A using recursion.
+void is_path(GraphNode** A, char u, char v, char path[], int &i, bool &flag) {
+	if(!flag) {
+		if(u==v) {
+			path[i] = v;
+			flag  = true;
+			cout << "Path exists from " << path[0] << " to " << path[i] << " and the path is ";
+			for(int j=0; j<=i; j++) {
+				cout << path[j];
+				if(j!=i) cout << "->";
+			}
+			cout << "." << endl;
+			return;
+		} else {
+			path[i++] = u;
+			GraphNode* w;
+			for(w=A[int(u)-65]; w; w=w->link) {
+				bool flag1 = false;
+				for(int j=0; j<i; j++)
+					if(path[j] == w->c) flag1 = true;
+				if(!flag1)
+					is_path(A, w->c, v, path, i, flag);
+			}
+			if(!w) path[i--] = ' ';
+		} 
+	}
+}
+
+struct queue_node{
+	GraphNode* g;
+	queue_node* link;
+};
+
+class Queue{
+	public:
+		queue_node* front = NULL;
+		queue_node* rear = NULL;
+		
+	void enqueue(GraphNode* node) {
+		queue_node* newNode = new queue_node;
+		newNode->g = node;
+		newNode->link = NULL;
+		if(front == NULL) front = rear = newNode;
+		else{
+			rear->link = newNode;
+			rear = newNode;
+		}
+	}
+
+	GraphNode* dequeue() {
+		GraphNode* data = front->g;
+		if(front == rear) front = rear = NULL;
+		else front = front->link;
+		return data;
+	}
+};
+
+// bfs traveral using queue.
+void bfs_traversal(GraphNode** A, char u) {
+	GraphNode* w;
+	int visited[MAX_VERTEX] {0};
+	cout << "The BFS sequence starting fromt vertex " << u << " is: ";
+	cout << u;
+	visited[int(u)-65] = 1;
+	Queue q;
+	q.enqueue(A[int(u)-65]);
+	while(q.front) {
+		u = q.dequeue()->c;
+		for(w = A[int(u)-65]; w; w=w->link) {
+			if(!visited[int(w->c)-65]) {
+				cout << "->" << w->c;
+				q.enqueue(w);
+				visited[int(w->c)-65] = 1;
+			}
+		}
+		cout << endl;
+	}
+}
+
+// 
+
+int main() {
+	GraphNode** A = Create_graph();
+
+	std::cout << "\na. ==========================================================" << std::endl;
+
+	find_degree(A);
+
+	char path[MAX_VERTEX];
+	for(int i=0; i<MAX_VERTEX; i++) path[i]=' ';
+
+	std::cout << "\nb. ==========================================================" << std::endl;
+
+	cout << "Enter the source vertex: ";
+	char u;
+	cin >> u;
+	cout << "Enter the destination vertex: ";
+	char v;
+	cin >> v;
+
+	int i=0;
+
+	bool flag  = false;
+
+	is_path(A, u, v, path, i, flag);
+
+	if(!flag) cout << "Path doesn't exists from " << path[0] << " to " << path[i] << "." << endl;
+
+	cout << endl;
+
+	std::cout << "\nc. ==========================================================" << std::endl;
+
+	cout << "Enter the source vertex: ";
+	char c;
+	cin >> c;
+
+	bfs_traversal(A, c);
+
+	return 0;
+}
+
 // A->B->C->D->F 
 // B->E 
 // D->B->E 
 // E->C->G 
 // F->D
-
-// void bfs_traversal(GraphNode** A) {
-// 	int n;
-// 	cout << "Enter the source vertex: ";
-// 	cin >>n;
-// 	n-=65;
-// 	GraphNode* temp = A[n];
-// 	queue<char> q;
-// 	while(temp->link != NULL) {
-// 		char c = temp->c;
-// 	}
-	
-// }
-
-int main() {
-	GraphNode** A = Create_graph();
-	find_degree(A);
-	
-	return 0;
-	
-}

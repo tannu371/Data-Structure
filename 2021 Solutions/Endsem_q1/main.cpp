@@ -1,85 +1,145 @@
 #include<iostream>
-#include<vector>
 
 using namespace std;
 
-struct graph_edge{
-    int u;
-    int v;
-    int weight;
-};
+template<typename T>
+int partition(T a[], int low, int high) {
+    int pIndex = low;
+    T pivot = a[pIndex];
+    int i=low, j=high;
+    while(i<j) {
+        while(a[i] >= pivot && i<=high) i++;
+        while(a[j] < pivot) j--;
+        if(i<j) {
+            T temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+            j--;
+        }
+    }
+
+    a[pIndex] = a[j];
+    a[j] = pivot;
+    pIndex = j;
+    return pIndex;
+}
+
+template<typename T>
+void quick_sort(T a[], int low, int high) {
+    if(low>=high) return;
+    int pIndex = partition(a, low, high);
+    quick_sort(a, low, pIndex-1);
+    quick_sort(a, pIndex+1, high);
+}
 
 struct graph_node{
     int vertex;
     graph_node* link;
 };
 
+struct graph_edge{
+    int u;
+    int v;
+    int weight;
+    bool operator< (const graph_edge &rhs) const {
+        return this->weight < rhs.weight;
+    }
 
-class graph {
-    public:
-        vector<graph_edge> edges;
-
-        graph(int n, int m) {
-            graph_node* g[n];
-            for(int i=0; i<n; i++) {
-                graph_node* node = new graph_node;
-                node->vertex = i+1;
-                node->link = NULL;
-                g[i] = node;
-            }
-
-            cout << "Enter the edges: ";
-            int a, b;
-            char c;
-
-            for(int i=0; i<m; i++) {
-                cin >> a >> b;
-                graph_node* node1 = g[a-1];
-                graph_node* node2 = g[b-1];
-                g[a-1]->link = node2;
-                g[b-1]->link = node1;
-                if(i!=m-1) cin >> c;
-
-                graph_edge e;
-                e.u = a;
-                e.v = b;
-                edges.push_back(e);
-            }
-
-            int k;
-            cout << "Enter K = ";
-            cin >> k;
-
-            for(int i=0; i<m; i++) {
-                cout << "Weight of edge (" << edges[i].u << ", " << edges[i].v << ") = ";
-                cin >> edges[i].weight;
-            }
-        }
-
-        int partition(int low, int high) {
-            int pIndex = low;
-
-        }
-
-        void quick_sort(int low, int high) {
-            if(low>=high) return;
-            int pIndex = partition(low, high);
-            quick_sort(low, pIndex-1);
-            quick_sort(pIndex+1, high);
-        }
-
-        void find_mst(int n) {
-            vector<graph_edge> T;
-            while(T.size()<n && !edges.empty()) {
-                
-            }
-        }
+    bool operator>= (const graph_edge &rhs) const {
+        return this->weight >= rhs.weight;
+    }
 };
 
-int main() {
+graph_edge* find_mst(graph_edge edges[],  int n, int m) {
+    quick_sort<graph_edge>(edges, 0, m);
+    graph_edge* T;
+    T = new graph_edge[n-1];
+
+    int i=0;
+    while(i<n-1 && m--) {
+        graph_edge e = edges[m];
+        bool flag1 = false;
+        for(int j=0; j<i; j++) {
+            if(T[j].u == e.u || T[j].v == e.u) flag1 = true;
+        }
+        bool flag2 = false;
+        if(flag1) {
+            for(int j=0; j<i; j++) {
+                if(T[j].u == e.v || T[j].v == e.v) flag2 = true;
+            }
+        }
+        if(!flag2) {
+            T[i++] = e;
+        }
+    }
+    return T;
+}
+
+graph_node* new_node(int n) {
+    graph_node* node = new graph_node;
+    node->vertex = n;
+    node->link = NULL;
+    return node;
+}
+
+graph_edge* graph() {
     int n, m;
     cout << "Enter number of users: ";
     cin >> n;
     cout << "Enter number of edges: ";
     cin >> m;
+    
+    graph_edge* edges;
+    edges = new graph_edge[m];
+
+    cout << "Enter the edges: ";
+    int a, b;
+    char c;
+
+    for(int i=0; i<m; i++) {
+        cin >> a >> b;
+        if(i!=m-1) cin >> c;
+        edges[i].u = a;
+        edges[i].v = b;
+    }
+
+    int k;
+    cout << "Enter K = ";
+    cin >> k;
+
+    for(int i=0; i<m; i++) {
+        cout << "Weight of edge (" << edges[i].u << ", " << edges[i].v << ") = ";
+        cin >> edges[i].weight;
+    }
+
+    graph_edge* T;
+    T = find_mst(edges, n, m);
+
+    graph_node** g;
+    g = new graph_node*[n];
+
+    int p=0;
+    int i = n-1;
+    while(i) {
+        bool flag1 = false;
+        for(int j=0; j<p; j++) {
+            if(g[j]->vertex == T[i].u) flag1 = true;
+        }
+        if(!flag1) g[p++] = new_node(T[i].u);
+
+        bool flag2 = false;
+        for(int j=0; j<p; j++) {
+            if(g[j]->vertex == T[i].u) flag2 = true;
+        }
+        if(!flag2) g[p++] = new_node(T[i].v);
+    }
+
+    return edges;
+}
+
+
+int main() {
+    
+    
+    
 }
