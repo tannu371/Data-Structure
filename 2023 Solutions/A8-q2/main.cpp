@@ -9,18 +9,110 @@ struct graph_node {
 	graph_node* link;
 };
 
+struct queue_node {
+	char c;
+	queue_node* link;
+};
+
+class Queue {
+	public:
+		queue_node* front = NULL;
+		queue_node* rear = NULL;
+
+		void enqueue(char data) {
+			queue_node* newNode = new queue_node;
+			newNode->c = data;
+			newNode->link = NULL;
+			if(front == NULL) front = rear = newNode;
+			else {
+				rear->link = newNode;
+				rear = newNode;
+			}
+		}
+
+		char dequeue() {
+			queue_node* temp = front;
+			if(front == rear) front = rear = NULL;
+			else front = front->link;
+			return temp->c;
+		}
+};
+
+int eccentricity(graph_node**G, int n, char start) {
+	int visited[n];
+	int e=0;
+	bool flag = false;
+	for(int i=0; i<n; i++) visited[i] = 0;
+	visited[int(start)-65] = 1;
+	Queue q;
+	q.enqueue(G[int(start)-65]->c);
+	char v;
+	graph_node* w;
+	while(q.front) {
+		v = q.dequeue();
+		for(w = G[int(v)-65]; w; w=w->link) {
+			if(!visited[int(w->c)-65]) {
+				if(!flag) {
+					e++;
+					flag = true;
+				}
+				q.enqueue(w->c);
+				visited[int(w->c)-65] = 1;
+			}	
+		}
+		flag = false;
+	}
+
+	return e;
+}
+
+void find_eccentricity(graph_node** G, int n) {
+	int* eccentricities;
+	eccentricities = new int[n];
+	for(int i=0; i<n; i++) eccentricities[i]=0;
+	
+	int min_eccentricity = n;
+
+	cout << "The eccentricites of the vertices are: " << endl;
+	for(int i=0; i<n; i++) {
+		eccentricities[i] = eccentricity(G, n, (i+65));
+		char c = i+65;
+		cout << c << " = " << eccentricities[i] << endl;
+		if(eccentricities[i] < min_eccentricity) min_eccentricity = eccentricities[i];
+	}
+	cout << endl;
+
+	int num = 0;
+	for(int i=0; i<n; i++) {
+		if(eccentricities[i] == min_eccentricity)
+			num = i;
+	}
+
+	cout << "The centre of the graph is: ";
+	for(int i=0; i<n; i++) {
+		if(eccentricities[i] == min_eccentricity) {
+			char c = i+65;
+			cout << c;
+			if(i != num) cout << ", ";
+		}		
+	}
+	cout << endl;
+}
+
 
 int main() {
-	graph_node* arr[MAX_VERTEX];
+	graph_node** arr;
 	
-	int ARR[MAX_VERTEX][MAX_VERTEX] = {0};
+	int ARR[MAX_VERTEX][MAX_VERTEX] {{0}};
 	
 	int m, n;
-	cout << "Enter the value of m: ";
+	cout << "Enter the value of m (number of vertices): ";
 	cin >> m;
-	cout << "Enter the value of n: ";
+	cout << "Enter the value of n (number of edges): ";
 	cin >> n;
 	
+	arr = new graph_node*[n];
+
 	for(int i=0; i<m; i++) {
 		graph_node* node = new graph_node;
 		node->c = (i+65);
@@ -99,6 +191,10 @@ int main() {
 			}
 		}
 		cout << endl;
-	}
-		
+	}	
+
+	find_eccentricity(arr, n);
+
 }
+
+// AB, AC, AD, CD, CE
